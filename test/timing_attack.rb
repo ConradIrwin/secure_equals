@@ -42,39 +42,37 @@ class Box
 
   class Secure < Box
     def guess(str)
-      SecureEquals.same? @secret, str
+      SecureEquals.equal? @secret, str
     end
   end
 end
 
 def brute_force(box, trials)
   scores = []
-  1.times do
-    guess = '0' * 32
-    (0..32).each do |pos|
-      max = 0
-      result = nil
-      this_time = guess.dup
-      'abcdef0123456789'.each_char do |letter|
-        this_time[pos] = letter
-        time = Hitimes::Interval.measure do
-          trials.times{ box.guess this_time }
-        end
-        if time > max
-          max = time
-          result = letter
-        end
+  guess = '0' * 32
+  (0..32).each do |pos|
+    max = 0
+    result = nil
+    this_time = guess.dup
+    'abcdef0123456789'.each_char do |letter|
+      this_time[pos] = letter
+      time = Hitimes::Interval.measure do
+        trials.times{ box.guess this_time }
       end
-      guess[pos] = result
+      if time > max
+        max = time
+        result = letter
+      end
     end
-    scores << box.score(guess)
+    guess[pos] = result
   end
+  scores << box.score(guess)
 
-  puts "average: #{scores.inject(&:+) / scores.size}"
+  puts "#{box.class} average: #{scores.inject(&:+) / scores.size}"
 end
 
 10.times do
   brute_force Box::Weak.new, 1000
-  brute_force Box::Standard.new, 100000
-  brute_force Box::Secure.new, 1000000
+  brute_force Box::Standard.new, 1000
+  brute_force Box::Secure.new, 1000
 end
