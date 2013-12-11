@@ -9,6 +9,7 @@ module SecureEquals
   # @return [Boolean] Are the strings the same?
   #
   def self.equal?(mine, theirs)
+    return false if mine.nil? || theirs.nil?
     mine = mine.to_str
     theirs = theirs.to_str
     return false unless mine.length == theirs.length
